@@ -1,0 +1,10 @@
+{
+  "name": "ALLÔ SHISHA Suite",
+  "short_name": "ALLÔ SHISHA",
+  "description": "Suite de gestion POS, QR, stock, finances, CRM et RH.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08070A",
+  "theme_color": "#08070A",
+  "icons": [{ "src": "/brand/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

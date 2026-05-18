@@ -1,0 +1,294 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  pending
+  accepted
+  preparing
+  served
+  paid
+  cancelled
+}
+
+enum PaymentMethod {
+  cash
+  mobile_money
+  card
+  cashier
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+model Product {
+  id                String   @id @default(uuid())
+  sku               String   @unique
+  name              String
+  description       String
+  image             String
+  format            String
+  salePrice         Int
+  purchasePrice     Int
+  stock             Int
+  alertThreshold    Int
+  criticalThreshold Int
+  available         Boolean  @default(true)
+  active            Boolean  @default(true)
+  costEstimated     Boolean  @default(true)
+  categoryId        String
+  category          Category @relation(fields: [categoryId], references: [id])
+  orderItems        OrderItem[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model DiningTable {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  qrTokenHash String
+  zone        String
+  seats       Int
+  status      String   @default("available")
+  orders      Order[]
+}
+
+model Order {
+  id            String        @id @default(uuid())
+  orderNo       String        @unique
+  status        OrderStatus   @default(pending)
+  paymentMethod PaymentMethod
+  subtotal      Int
+  discountTotal Int           @default(0)
+  total         Int
+  cogsTotal     Int
+  grossProfit   Int
+  tableId       String?
+  table         DiningTable?  @relation(fields: [tableId], references: [id])
+  items         OrderItem[]
+  payments      Payment[]
+  invoice       Invoice?
+  createdAt     DateTime      @default(now())
+  paidAt        DateTime?
+}
+
+model OrderItem {
+  id                    String  @id @default(uuid())
+  orderId               String
+  productId             String
+  productNameSnapshot   String
+  skuSnapshot           String
+  quantity              Int
+  unitPrice             Int
+  purchasePriceSnapshot Int
+  lineTotal             Int
+  lineProfit            Int
+  order                 Order   @relation(fields: [orderId], references: [id])
+  product               Product @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  orderId     String
+  method      PaymentMethod
+  amount      Int
+  status      String        @default("pending")
+  providerRef String?
+  paidAt      DateTime?
+  order       Order         @relation(fields: [orderId], references: [id])
+}
+
+model Invoice {
+  id          String   @id @default(uuid())
+  orderId     String   @unique
+  invoiceNo   String   @unique
+  status      String
+  pdfA4Url    String?
+  ticketUrl   String?
+  total       Int
+  lockedAt    DateTime?
+  generatedAt DateTime @default(now())
+  order       Order    @relation(fields: [orderId], references: [id])
+}
+
+model Employee {
+  id        String   @id @default(uuid())
+  ref       String   @unique
+  firstName String
+  lastName  String
+  phone     String
+  email     String?
+  position  String
+  salary    Int
+  status    String   @default("active")
+  hiredAt   DateTime
+  attendances Attendance[]
+}
+
+model Attendance {
+  id            String    @id @default(uuid())
+  employeeId    String
+  date          DateTime
+  checkIn       DateTime?
+  checkOut      DateTime?
+  workedHours   Float     @default(0)
+  lateMinutes   Int       @default(0)
+  overtimeHours Float     @default(0)
+  status        String
+  employee      Employee  @relation(fields: [employeeId], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  before     Json?
+  after      Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  isActive     Boolean  @default(true)
+  employeeId   String?
+  createdAt    DateTime @default(now())
+}
+
+model Role {
+  id          String           @id @default(uuid())
+  name        String
+  slug        String           @unique
+  permissions RolePermission[]
+}
+
+model Permission {
+  id    String           @id @default(uuid())
+  name  String
+  slug  String           @unique
+  roles RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+}
+
+model Client {
+  id            String   @id @default(uuid())
+  name          String
+  phone         String?
+  whatsapp      String?
+  birthday      DateTime?
+  preferences   Json?
+  totalSpent    Int      @default(0)
+  vipStatus     String   @default("standard")
+  loyaltyPoints Int      @default(0)
+  internalNotes String?
+}
+
+model Supplier {
+  id          String   @id @default(uuid())
+  name        String
+  contactName String?
+  phone       String?
+  email       String?
+  address     String?
+  notes       String?
+}
+
+model ProductPriceHistory {
+  id        String   @id @default(uuid())
+  productId String
+  type      String
+  oldPrice  Int
+  newPrice  Int
+  changedBy String?
+  createdAt DateTime @default(now())
+}
+
+model StockMovement {
+  id         String   @id @default(uuid())
+  productId  String
+  type       String
+  quantity   Int
+  reason     String?
+  orderId    String?
+  supplierId String?
+  unitCost   Int?
+  createdBy  String?
+  createdAt  DateTime @default(now())
+}
+
+model StockAlert {
+  id         String   @id @default(uuid())
+  productId  String
+  level      String
+  message    String
+  resolvedAt DateTime?
+  createdAt  DateTime @default(now())
+}
+
+model FixedExpense {
+  id        String  @id @default(uuid())
+  label     String
+  amount    Int
+  period    String
+  dueDay    Int?
+  category  String
+  isActive  Boolean @default(true)
+}
+
+model VariableExpense {
+  id         String   @id @default(uuid())
+  label      String
+  amount     Int
+  category   String
+  supplierId String?
+  occurredAt DateTime
+  notes      String?
+}
+
+model Payroll {
+  id               String   @id @default(uuid())
+  employeeId       String
+  periodStart      DateTime
+  periodEnd        DateTime
+  salaryBase       Int
+  overtimeAmount   Int      @default(0)
+  commissionAmount Int      @default(0)
+  deductions       Int      @default(0)
+  netPay           Int
+  status           String
+}
+
+model Commission {
+  id         String   @id @default(uuid())
+  employeeId String
+  orderId    String?
+  amount     Int
+  rule       String
+  createdAt  DateTime @default(now())
+}

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" role="img" aria-label="Produit ALLÔ SHISHA">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#111014"/>
+      <stop offset="0.55" stop-color="#241329"/>
+      <stop offset="1" stop-color="#08070A"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="360" rx="24" fill="url(#g)"/>
+  <circle cx="358" cy="86" r="62" fill="#FF3FA4" opacity="0.18"/>
+  <circle cx="126" cy="278" r="74" fill="#7C3AED" opacity="0.18"/>
+  <path d="M182 250h116c18 0 32-14 32-32V110H150v108c0 18 14 32 32 32Z" fill="#D6A84F" opacity="0.9"/>
+  <path d="M180 110c8-27 30-43 60-43s52 16 60 43" fill="none" stroke="#F8F7F2" stroke-width="12" stroke-linecap="round"/>
+  <text x="240" y="304" fill="#F8F7F2" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">ALLÔ SHISHA</text>
+</svg>
