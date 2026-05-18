@@ -15,9 +15,15 @@ type CartItem = {
 export function PosCart() {
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  function addProduct(product: { sku: string; name: string; price: number }) {
+  function addProduct(product: {
+    sku: string;
+    name: string;
+    price: number;
+  }) {
     setCart((current) => {
-      const existing = current.find((item) => item.sku === product.sku);
+      const existing = current.find(
+        (item) => item.sku === product.sku
+      );
 
       if (existing) {
         return current.map((item) =>
@@ -44,11 +50,17 @@ export function PosCart() {
   }
 
   function removeItem(sku: string) {
-    setCart((current) => current.filter((item) => item.sku !== sku));
+    setCart((current) =>
+      current.filter((item) => item.sku !== sku)
+    );
   }
 
   const total = useMemo(
-    () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    () =>
+      cart.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      ),
     [cart]
   );
 
@@ -65,24 +77,46 @@ export function PosCart() {
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
       <section className="glass rounded-3xl p-5">
-        <h2 className="text-2xl font-bold text-white">Catalogue</h2>
+        <h2 className="text-2xl font-bold text-white">
+          Catalogue
+        </h2>
 
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {products.map((product) => (
             <button
               key={product.sku}
-              onClick={() => addProduct(product)}
+              onClick={() =>
+                addProduct({
+                  sku: product.sku,
+                  name: product.name,
+                  price:
+                    product.price ??
+                    product.salePrice ??
+                    0
+                })
+              }
               className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:bg-white/10"
             >
-              <p className="font-bold text-white">{product.name}</p>
-              <p className="mt-2 text-gold">{money(product.price)}</p>
+              <p className="font-bold text-white">
+                {product.name}
+              </p>
+
+              <p className="mt-2 text-gold">
+                {money(
+                  product.price ??
+                    product.salePrice ??
+                    0
+                )}
+              </p>
             </button>
           ))}
         </div>
       </section>
 
       <aside className="glass rounded-3xl p-5">
-        <h2 className="text-2xl font-bold text-white">Panier</h2>
+        <h2 className="text-2xl font-bold text-white">
+          Panier
+        </h2>
 
         <div className="mt-5 space-y-3">
           {cart.length === 0 ? (
@@ -91,17 +125,27 @@ export function PosCart() {
             </p>
           ) : (
             cart.map((item) => (
-              <div key={item.sku} className="rounded-2xl bg-white/5 p-3">
+              <div
+                key={item.sku}
+                className="rounded-2xl bg-white/5 p-3"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-bold text-white">{item.name}</p>
+                    <p className="font-bold text-white">
+                      {item.name}
+                    </p>
+
                     <p className="mt-1 text-sm text-white/60">
-                      {money(item.price * item.quantity)}
+                      {money(
+                        item.price * item.quantity
+                      )}
                     </p>
                   </div>
 
                   <button
-                    onClick={() => removeItem(item.sku)}
+                    onClick={() =>
+                      removeItem(item.sku)
+                    }
                     className="rounded-lg bg-red-500/10 p-2 text-red-200 hover:bg-red-500/20"
                   >
                     <Trash2 size={16} />
@@ -111,7 +155,9 @@ export function PosCart() {
                 <div className="mt-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => decreaseQuantity(item.sku)}
+                      onClick={() =>
+                        decreaseQuantity(item.sku)
+                      }
                       className="rounded-lg bg-white/10 p-2 text-white"
                     >
                       <Minus size={14} />
@@ -122,7 +168,13 @@ export function PosCart() {
                     </span>
 
                     <button
-                      onClick={() => addProduct(item)}
+                      onClick={() =>
+                        addProduct({
+                          sku: item.sku,
+                          name: item.name,
+                          price: item.price
+                        })
+                      }
                       className="rounded-lg bg-white/10 p-2 text-white"
                     >
                       <Plus size={14} />
@@ -140,7 +192,10 @@ export function PosCart() {
 
         <div className="mt-6 border-t border-white/10 pt-5">
           <div className="flex items-center justify-between">
-            <span className="text-white/70">Total</span>
+            <span className="text-white/70">
+              Total
+            </span>
+
             <span className="text-2xl font-black text-gold">
               {money(total)}
             </span>
